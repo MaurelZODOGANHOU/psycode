@@ -33,7 +33,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'dj_rest_auth',
     'accounts',
-    'consultcare'
+    'consultcare',
+    'allauth',
+    'allauth.account',
 
 ]
 
@@ -60,6 +62,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -184,3 +187,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # login django
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
+USER_MODEL_USERNAME_FIELD = 'email'
