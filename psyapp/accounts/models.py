@@ -101,4 +101,3 @@ class Cabinet(models.Model):
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    pseudo = models.CharField(max_length=255)

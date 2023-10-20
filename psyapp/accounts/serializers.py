@@ -6,8 +6,8 @@ from .models import User, Psy, Patient
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'password', 'nom', 'prenom', 'middle_name', 'pseudo', 'date_naissance', 'telephone',
-                  'user_type', 'is_active', 'is_staff']
+        fields = ['email', 'password', 'nom', 'prenom', 'middle_name', 'username', 'date_naissance', 'telephone',
+                  'user_type']
         extra_kwargs = {
             'password': {'write_only': True}
         }
