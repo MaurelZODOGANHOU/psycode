@@ -1,9 +1,32 @@
-# serializers.py
-from rest_framework import serializers
-from .models import User, Psy, Patient
 
 from djoser.serializers import UserCreateSerializer
 from .models import User
+from rest_framework import serializers
+from .models import Psy, LieuConsultation, Cabinet, Patient
+
+
+class PsySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Psy
+        fields = '__all__'
+
+
+class LieuConsultationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LieuConsultation
+        fields = '__all__'
+
+
+class CabinetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cabinet
+        fields = '__all__'
+
+
+class PatientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Patient
+        fields = '__all__'
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):

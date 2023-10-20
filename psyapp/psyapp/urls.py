@@ -6,6 +6,17 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
+from accounts.views import (
+    PsyListCreateView,
+    PsyRetrieveUpdateDestroyView,
+    LieuConsultationListCreateView,
+    LieuConsultationRetrieveUpdateDestroyView,
+    CabinetListCreateView,
+    CabinetRetrieveUpdateDestroyView,
+    PatientListCreateView,
+    PatientRetrieveUpdateDestroyView
+)
+
 from accounts.views import UserCreateView
 
 schema_view = get_schema_view(
@@ -23,6 +34,7 @@ schema_view = get_schema_view(
 router = DefaultRouter()
 
 urlpatterns = [
+    # authentication
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
@@ -36,5 +48,19 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
+
+    # servvices connexee
+
+    path('psy/', PsyListCreateView.as_view(), name='psy-list-create'),
+    path('psy/<int:pk>/', PsyRetrieveUpdateDestroyView.as_view(), name='psy-detail'),
+
+    path('lieu/', LieuConsultationListCreateView.as_view(), name='lieu-list-create'),
+    path('lieu/<int:pk>/', LieuConsultationRetrieveUpdateDestroyView.as_view(), name='lieu-detail'),
+
+    path('cabinet/', CabinetListCreateView.as_view(), name='cabinet-list-create'),
+    path('cabinet/<int:pk>/', CabinetRetrieveUpdateDestroyView.as_view(), name='cabinet-detail'),
+
+    path('patient/', PatientListCreateView.as_view(), name='patient-list-create'),
+    path('patient/<int:pk>/', PatientRetrieveUpdateDestroyView.as_view(), name='patient-detail'),
 
 ]
