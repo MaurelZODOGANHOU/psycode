@@ -2,6 +2,15 @@
 from rest_framework import serializers
 from .models import User, Psy, Patient
 
+from djoser.serializers import UserCreateSerializer
+from .models import User
+
+
+class CustomUserCreateSerializer(UserCreateSerializer):
+    class Meta(UserCreateSerializer.Meta):
+        model = User
+        fields = ('id', 'email', 'nom', 'prenom', 'date_naissance', 'telephone', 'user_type', 'password')
+
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:

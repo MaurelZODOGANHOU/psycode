@@ -1,5 +1,6 @@
 # views.py
 from rest_framework import generics, status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from .models import User
 from .serializers import UserRegisterSerializer
@@ -8,6 +9,7 @@ from .serializers import UserRegisterSerializer
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegisterSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
