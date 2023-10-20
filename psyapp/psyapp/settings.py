@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 from django.conf import settings
@@ -47,14 +48,13 @@ REST_AUTH = {
 }
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 3,
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
@@ -67,19 +67,19 @@ DJOSER = {
         'user_create': 'accounts.serializers.CustomUserCreateSerializer',
     },
 }
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+    'allauth.account.middleware.AccountMiddleware',
 
+]
 ROOT_URLCONF = 'psyapp.urls'
 
 TEMPLATES = [
@@ -149,7 +149,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-from datetime import timedelta
+AUTH_USER_MODEL = 'accounts.User'
+USER_MODEL_USERNAME_FIELD = 'email'
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
@@ -191,11 +192,11 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_ALL_ORIGINS = True  # Pour le développement; pour la production, utilise CORS_ALLOWED_ORIGINS
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # login django
+    #  "http://localhost:8080",  # Port par défaut de Vue.js
+    "http://localhost:4200"
 ]
 
-AUTH_USER_MODEL = 'accounts.User'
-USER_MODEL_USERNAME_FIELD = 'email'
