@@ -1,4 +1,6 @@
 from django.db import models
+from accounts.models import Psy
+
 
 class Specialisation(models.Model):
     nom = models.CharField(max_length=50, unique=True)
@@ -15,11 +17,10 @@ class Panier(models.Model):
     def __str__(self):
         return self.nom
 
-class Specialiste(models.Model):
-    nom = models.CharField(max_length=100)
-    prenom = models.CharField(max_length=100)
+class SpecialisteChoisi(models.Model):
+    psy = models.ForeignKey(Psy, on_delete=models.CASCADE, related_name='specialistes_choisis')
     specialisations = models.ManyToManyField(Specialisation, related_name='specialistes')
     paniers = models.ManyToManyField(Panier, related_name='specialistes')
 
     def __str__(self):
-        return f"{self.prenom} {self.nom}"
+        return f"{self.psy.prenom} {self.psy.nom}"
