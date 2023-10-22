@@ -19,7 +19,11 @@ from accounts.views import (
 
 from accounts.views import UserCreateView, TypeConsultationListView
 
-from zoomapp.views import CommunicationView, AudioCallView
+from zoomapp.views import CommunicationView
+
+from zoomapp.views import VideoCallListCreateView, VideoCallDetailView, GenerateVideoToken
+
+from zoomapp.views import AppelClientTwilioListCreateView, AppelClientTwilioDetailView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -44,18 +48,26 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    # path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
-    # path('dj-rest-auth/', include('dj_rest_auth.urls')),
+
     path('register/', UserCreateView.as_view(), name='register'),
     path('api-auth/', include('rest_framework.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
 
+    # appel audio and sms call
+    # path('start-audio-call/', AudioCallView.as_view(), name='start-audio-call'),
+    # path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
+    # path('dj-rest-auth/', include('dj_rest_auth.urls'))
 
+    path('appels/', AppelClientTwilioListCreateView.as_view(), name='appel-list-create'),
+    path('appels/<int:pk>/', AppelClientTwilioDetailView.as_view(), name='appel-detail'),
 
-    #appel audio and sms call
-    path('start-audio-call/', AudioCallView.as_view(), name='start-audio-call'),
     path('start-sms-com/', CommunicationView.as_view(), name='start-communication'),
+
+    # Appel video suivi de génératio  de token
+    path('video-calls/', VideoCallListCreateView.as_view(), name='video-call-list-create'),
+    path('video-calls/<int:pk>/', VideoCallDetailView.as_view(), name='video-call-detail'),
+    path('generate-token/', GenerateVideoToken.as_view(), name='generate-token'),
 
     # filters
     path('type-consultation/', TypeConsultationListView.as_view(), name='type-consultation-list'),

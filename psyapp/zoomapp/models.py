@@ -52,3 +52,16 @@ class AppelClientTwilio(models.Model):
         )
         print(message)
         super().save()
+
+
+class VideoCall(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='video_calls_as_patient')
+    psy = models.ForeignKey(Psy, on_delete=models.CASCADE, related_name='video_calls_as_psy')
+    room_sid = models.CharField(max_length=34, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20,
+                              choices=[('pending', 'Pending'), ('ongoing', 'Ongoing'), ('finished', 'Finished')],
+                              default='pending')
+
+    def __str__(self):
+        return f"{self.psy.user.username} <-> {self.patient.user.username}"

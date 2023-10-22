@@ -1,12 +1,20 @@
+import uuid
+
 from rest_framework import generics, permissions
+from twilio.jwt.access_token import AccessToken
+from twilio.jwt.access_token.grants import VideoGrant
 from .models import SmsMessages, AppelClientTwilio
 from .serializers import SmsMessagesSerializer, AppelClientTwilioSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from twilio.rest import Client
 from twilio.twiml.voice_response import Dial, VoiceResponse
-
+from twilio.rest import Client
+from django.conf import settings
+from rest_framework import generics
+from .models import VideoCall
+from .serializers import VideoCallSerializer
+from rest_framework.permissions import IsAuthenticated
 from accounts.models import Psy, Patient
 from .serializers import CommunicationSerializer
 
@@ -23,6 +31,7 @@ class SmsMessagesDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]  # Autoriser seulement les utilisateurs authentifiés
 
 
+"""
 class AppelClientTwilioListCreateView(generics.ListCreateAPIView):
     queryset = AppelClientTwilio.objects.all()
     serializer_class = AppelClientTwilioSerializer
@@ -33,7 +42,7 @@ class AppelClientTwilioDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = AppelClientTwilio.objects.all()
     serializer_class = AppelClientTwilioSerializer
     permission_classes = [permissions.IsAuthenticated]  # Autoriser seulement les utilisateurs authentifiés
-
+"""
 
 from rest_framework.views import APIView
 
@@ -66,6 +75,7 @@ class CommunicationView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+"""
 class AudioCallView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = CommunicationSerializer(data=request.data)
@@ -97,3 +107,86 @@ class AudioCallView(APIView):
             return Response({"detail": "Appel initié avec succès."}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+"""
+
+
+class VideoCallListCreateView(generics.ListCreateAPIView):
+    queryset = VideoCall.objects.all()
+    serializer_class = VideoCallSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Créer une salle Twilio et obtenir le SID
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        room = client.video.rooms.create(unique_name=str(uuid.uuid4()), type='group')
+
+        # Mettre à jour le statut et le SID de la salle dans l'instance
+        serializer.save(status='pending', room_sid=room.sid)
+
+
+class VideoCallDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = VideoCall.objects.all()
+    serializer_class = VideoCallSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class GenerateVideoToken(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        room_sid = request.data.get('room_sid')
+        try:
+            video_call = VideoCall.objects.get(room_sid=room_sid)
+        except VideoCall.DoesNotExist:
+            return Response({'error': 'Video call does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Vérifiez si l'utilisateur est autorisé à rejoindre cet appel vidéo
+        if request.user != video_call.patient.user and request.user != video_call.psy.user:
+            return Response({'error': 'You are not part of this video call'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Créer le jeton d'accès Twilio
+        token = AccessToken(settings.TWILIO_ACCOUNT_SID,
+                            settings.TWILIO_API_KEY_SID,
+                            settings.TWILIO_API_KEY_SECRET,
+                            identity=str(request.user.id))
+        video_grant = VideoGrant(room=video_call.room_sid)
+        token.add_grant(video_grant)
+
+        return Response({'token': token.to_jwt().decode()})
+
+
+class AppelClientTwilioListCreateView(generics.ListCreateAPIView):
+    queryset = AppelClientTwilio.objects.all()
+    serializer_class = AppelClientTwilioSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Récupérez les numéros de téléphone du patient et du psy
+        psy_telephone = serializer.validated_data['calling_from'].user.telephone
+        patient_telephone = serializer.validated_data['calling_receive'].patient.telephone
+
+        # Initialisez le client Twilio
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+        try:
+            # Initiez l'appel
+            call = client.calls.create(
+                to=patient_telephone,
+                from_=psy_telephone,
+                url=settings.TWILIO_CALL_URL,  # URL de votre application TwiML
+            )
+            # Sauvegardez l'ID de l'appel et d'autres infos si nécessaire
+            serializer.save(call_sid=call.sid)
+
+        except Exception as e:
+            # Gérez l'exception comme vous le souhaitez
+            print("Erreur lors de l'initialisation de l'appel :", str(e))
+            return Response({"detail": "Erreur lors de l'initialisation de l'appel."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AppelClientTwilioDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AppelClientTwilio.objects.all()
+    serializer_class = AppelClientTwilioSerializer
+    permission_classes = [IsAuthenticated]
