@@ -21,6 +21,8 @@ from accounts.views import UserCreateView, TypeConsultationListView
 
 from zoomapp.views import CommunicationView, AudioCallView
 
+from zoomapp.views import VideoCallListCreateView, VideoCallDetailView, GenerateVideoToken
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Snippets API",
@@ -56,6 +58,11 @@ urlpatterns = [
     #appel audio and sms call
     path('start-audio-call/', AudioCallView.as_view(), name='start-audio-call'),
     path('start-sms-com/', CommunicationView.as_view(), name='start-communication'),
+
+    #Appel video suivi de génératio  de token
+    path('video-calls/', VideoCallListCreateView.as_view(), name='video-call-list-create'),
+    path('video-calls/<int:pk>/', VideoCallDetailView.as_view(), name='video-call-detail'),
+    path('generate-token/', GenerateVideoToken.as_view(), name='generate-token'),
 
     # filters
     path('type-consultation/', TypeConsultationListView.as_view(), name='type-consultation-list'),
