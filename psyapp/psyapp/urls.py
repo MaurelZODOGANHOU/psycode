@@ -17,7 +17,9 @@ from accounts.views import (
     PatientRetrieveUpdateDestroyView
 )
 
-from accounts.views import UserCreateView
+from accounts.views import UserCreateView, TypeConsultationListView
+
+from zoomapp.views import CommunicationView, AudioCallView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -48,6 +50,15 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
+
+
+
+    #appel audio and sms call
+    path('start-audio-call/', AudioCallView.as_view(), name='start-audio-call'),
+    path('start-sms-com/', CommunicationView.as_view(), name='start-communication'),
+
+    # filters
+    path('type-consultation/', TypeConsultationListView.as_view(), name='type-consultation-list'),
 
     # servvices connexee
 

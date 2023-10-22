@@ -1,8 +1,14 @@
-
 from djoser.serializers import UserCreateSerializer
 from .models import User
 from rest_framework import serializers
 from .models import Psy, LieuConsultation, Cabinet, Patient
+from .models import TypeConsultation
+
+
+class TypeConsultationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TypeConsultation
+        fields = '__all__'
 
 
 class PsySerializer(serializers.ModelSerializer):

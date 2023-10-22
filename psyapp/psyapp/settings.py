@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'drf_yasg',
     'djoser',
+    'zoomapp'
 
 ]
 

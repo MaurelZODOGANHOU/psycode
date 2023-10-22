@@ -1,9 +1,15 @@
 # views.py
+from rest_framework.generics import ListAPIView
+
+from .models import TypeConsultation
+from .serializers import TypeConsultationSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from .models import User
 from .serializers import UserRegisterSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import TypeConsultationFilter
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -79,3 +85,15 @@ class UserCreateView(generics.CreateAPIView):
                 return Response({"user_id": user.id, "profile_type": "Patient"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TypeConsultationListView(ListAPIView):
+    """
+      Récupère la liste des types de consultation.
+      Vous pouvez filtrer les résultats en utilisant le paramètre de requête 'type_name'.
+      Par exemple : /api/typeconsultation/?type_name=In-Office
+      """
+    queryset = TypeConsultation.objects.all()
+    serializer_class = TypeConsultationSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TypeConsultationFilter

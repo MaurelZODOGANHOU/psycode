@@ -100,4 +100,4 @@ class Cabinet(models.Model):
 
 
 class Patient(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    patient = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
