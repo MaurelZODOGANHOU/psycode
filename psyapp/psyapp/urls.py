@@ -3,8 +3,10 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from djoser import views as djoser_views
+from rest_framework.routers import SimpleRouter
 
 from accounts.views import (
     PsyListCreateView,
@@ -25,6 +27,13 @@ from zoomapp.views import VideoCallListCreateView, VideoCallDetailView, Generate
 
 from zoomapp.views import AppelClientTwilioListCreateView, AppelClientTwilioDetailView
 
+from zoomapp.views import EmailConsultationView
+
+from consultcare.views import SpecialisationPsyListCreateView, SpecialisationPsyDetailView, \
+    ForfaitConsultationDetailView, ForfaitConsultationListCreateView, SouscriptionForfaitListCreateView, \
+    SouscriptionForfaitDetailView, ConsultationListCreateView, ConsultationDetailView, CommandeListCreateView, \
+    CommandeDetailView
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Snippets API",
@@ -37,8 +46,8 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=(permissions.AllowAny,), )
 
-router = DefaultRouter()
-
+router = SimpleRouter()
+router.register(r'users', djoser_views.UserViewSet)
 urlpatterns = [
     # authentication
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
@@ -53,6 +62,10 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
+    path('auth/', include('djoser.urls.jwt')),
+    path('auth-google/', include('djoser.social.urls')),
 
     # appel audio and sms call
     # path('start-audio-call/', AudioCallView.as_view(), name='start-audio-call'),
@@ -63,6 +76,7 @@ urlpatterns = [
     path('appels/<int:pk>/', AppelClientTwilioDetailView.as_view(), name='appel-detail'),
 
     path('start-sms-com/', CommunicationView.as_view(), name='start-communication'),
+    path('email_consultations/', EmailConsultationView.as_view(), name='email_consultations'),
 
     # Appel video suivi de génératio  de token
     path('video-calls/', VideoCallListCreateView.as_view(), name='video-call-list-create'),
@@ -86,4 +100,20 @@ urlpatterns = [
     path('patient/', PatientListCreateView.as_view(), name='patient-list-create'),
     path('patient/<int:pk>/', PatientRetrieveUpdateDestroyView.as_view(), name='patient-detail'),
 
-]
+    # Consultation et commande
+    path('specialisations/', SpecialisationPsyListCreateView.as_view(), name='specialisation-list-create'),
+    path('specialisations/<int:pk>/', SpecialisationPsyDetailView.as_view(), name='specialisation-detail'),
+
+    path('forfaits/', ForfaitConsultationListCreateView.as_view(), name='forfait-list-create'),
+    path('forfaits/<int:pk>/', ForfaitConsultationDetailView.as_view(), name='forfait-detail'),
+
+    path('souscriptions/', SouscriptionForfaitListCreateView.as_view(), name='souscription-list-create'),
+    path('souscriptions/<int:pk>/', SouscriptionForfaitDetailView.as_view(), name='souscription-detail'),
+
+    path('consultations/', ConsultationListCreateView.as_view(), name='consultation-list-create'),
+    path('consultations/<int:pk>/', ConsultationDetailView.as_view(), name='consultation-detail'),
+
+    path('commandes/', CommandeListCreateView.as_view(), name='commande-list-create'),
+    path('commandes/<int:pk>/', CommandeDetailView.as_view(), name='commande-detail'),
+
+] + router.urls
