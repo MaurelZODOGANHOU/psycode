@@ -1,7 +1,14 @@
-from rest_framework import serializers
-from .models import SmsMessages, AppelClientTwilio
-from rest_framework import serializers
+from .models import SmsMessages
 from .models import AppelClientTwilio
+from .models import VideoCall
+from rest_framework import serializers
+from .models import EmailConsultation
+
+
+class EmailConsultationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailConsultation
+        fields = '__all__'  # ou une liste des champs que vous voulez inclure
 
 
 class SmsMessagesSerializer(serializers.ModelSerializer):
@@ -10,16 +17,9 @@ class SmsMessagesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-from rest_framework import serializers
-
-
 class CommunicationSerializer(serializers.Serializer):
     sender_id = serializers.IntegerField()
     recipient_id = serializers.IntegerField()
-
-
-from rest_framework import serializers
-from .models import VideoCall
 
 
 class VideoCallSerializer(serializers.ModelSerializer):

@@ -18,6 +18,26 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Psy, Patient
 from .serializers import CommunicationSerializer
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import EmailConsultation
+from .serializers import EmailConsultationSerializer
+
+
+class EmailConsultationView(APIView):
+    def get(self, request, format=None):
+        consultations = EmailConsultation.objects.all()
+        serializer = EmailConsultationSerializer(consultations, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = EmailConsultationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class SmsMessagesListCreateView(generics.ListCreateAPIView):
     queryset = SmsMessages.objects.all()

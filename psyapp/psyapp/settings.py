@@ -35,12 +35,14 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'accounts',
     'consultcare',
-    'allauth',
-    'allauth.account',
     'drf_yasg',
     'djoser',
-    'zoomapp'
-
+    'zoomapp',
+    'social_django',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 REST_AUTH = {
@@ -67,7 +69,28 @@ DJOSER = {
     'SERIALIZERS': {
         'user_create': 'accounts.serializers.CustomUserCreateSerializer',
     },
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['VotreURIdeRedirection'],
+    'SEND_CONFIRMATION_EMAIL': True,
 }
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'VotreCléClientGoogle'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'VotreSecretClientGoogle'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'djoser.social.views.SocialAuthView',
+)
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -98,6 +121,10 @@ TEMPLATES = [
         },
     },
 ]
+
+# configuration de sendgrid
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = 'Votre-Clé-API-SendGrid'
 
 WSGI_APPLICATION = 'psyapp.wsgi.application'
 
@@ -193,7 +220,6 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-
 CORS_ALLOW_ALL_ORIGINS = True  # Pour le développement; pour la production, utilise CORS_ALLOWED_ORIGINS
 
 CORS_ALLOWED_ORIGINS = [
@@ -201,3 +227,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200"
 ]
 
+# strip
+STRIPE_PUBLIC_KEY = 'votre-clé-public-stripe'
+STRIPE_SECRET_KEY = 'votre-clé-secrete-stripe'
